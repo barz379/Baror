@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buat Website - Fitur CreateWeb</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: radial-gradient(ellipse at center, #0d1b2a 0%, #1b263b 50%, #415a77 100%);
+            color: #e0e1dd;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #ffffff, transparent),
+                radial-gradient(2px 2px at 40px 70px, #ffffff, transparent),
+                radial-gradient(1px 1px at 90px 40px, #ffffff, transparent),
+                radial-gradient(1px 1px at 130px 80px, #ffffff, transparent),
+                radial-gradient(2px 2px at 160px 30px, #ffffff, transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: twinkle 4s ease-in-out infinite alternate;
+            z-index: -1;
+        }
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        .container {
+            background: rgba(33, 37, 41, 0.9);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            max-width: 650px;
+            width: 100%;
+            margin: 20px;
+            text-align: center;
+            position: relative;
+        }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00d4ff, #090979, #ff6b6b);
+            border-radius: 20px;
+            z-index: -1;
+            opacity: 0.7;
+        }
+        h1 {
+            margin-bottom: 25px;
+            font-size: 2.5em;
+            color: #00d4ff;
+            text-shadow: 0 0 10px #00d4ff;
+        }
+        input, button, select {
+            width: 100%;
+            padding: 15px;
+            margin: 12px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            font-size: 1em;
+            background: rgba(255, 255, 255, 0.05);
+            color: #e0e1dd;
+        }
+        input::placeholder {
+            color: rgba(224, 225, 221, 0.6);
+        }
+        select {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        button {
+            background: linear-gradient(45deg, #00d4ff, #090979);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-weight: bold;
+        }
+        button:hover {
+            background: linear-gradient(45deg, #090979, #00d4ff);
+            box-shadow: 0 0 20px #00d4ff;
+        }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .file-input {
+            margin: 25px 0;
+        }
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+            display: none;
+            white-space: pre-line;
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+        .loading {
+            background: rgba(255, 255, 0, 0.1);
+            border-color: #ffff00;
+            color: #ffff00;
+        }
+        .tab {
+            display: none;
+        }
+        .tab.active {
+            display: block;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .tab-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 25px;
+            margin: 0 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: #e0e1dd;
+            transition: all 0.3s;
+        }
+        .tab-button.active {
+            background: linear-gradient(45deg, #00d4ff, #090979);
+            box-shadow: 0 0 15px #00d4ff;
+        }
+        .tab-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="tabs">
+        <button class="tab-button active" onclick="showTab('cweb')">CreateWeb (Vercel Direct)</button>
+        <button class="tab-button" onclick="showTab('cweb3')">CreateWeb3 (GitHub + Vercel)</button>
+    </div>
+
+    <div id="cweb" class="container tab active">
+        <h1>Deploy Langsung ke Vercel</h1>
+        <form id="cwebForm">
+            <input type="text" id="cwebName" placeholder="Nama Web (contoh: mywebsite)" required>
+            <div class="file-input">
+                <input type="file" id="cwebFileInput" accept=".zip,.html" required>
+                <p>Reply file .zip atau .html</p>
+            </div>
+            <button type="submit" id="cwebSubmitBtn">Buat Website</button>
+        </form>
+        <div id="cwebResult" class="result"></div>
+    </div>
+
+    <div id="cweb3" class="container tab">
+        <h1>Buat Repo GitHub & Deploy ke Vercel</h1>
+        <form id="cweb3Form">
+            <input type="text" id="cweb3Name" placeholder="Nama Web (contoh: mywebsite)" required>
+            <div class="file-input">
+                <input type="file" id="cweb3FileInput" accept=".zip,.html" required>
+                <p>Reply file .zip atau .html</p>
+            </div>
+            <button type="submit" id="cweb3SubmitBtn">Buat Website</button>
+        </form>
+        <div id="cweb3Result" class="result"></div>
+    </div>
+
+    <script>
+        // Token hardcoded (ganti dengan token nyata Anda)
+        const vercelToken = 'L6uK0vROD5lHr8NP2BlqqGAr'; // Ganti dengan token Vercel Anda
+        const githubToken = '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'; // Ganti dengan token GitHub Anda (dengan scope repo)
+        const githubUsername = 'barz379'; // Ganti dengan username GitHub Anda
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+        }
+
+        document.getElementById('cwebForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const webName = document.getElementById('cwebName').value.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '');
+            const fileInput = document.getElementById('cwebFileInput');
+            const resultDiv = document.getElementById('cwebResult');
+            const submitBtn = document.getElementById('cwebSubmitBtn');
+
+            if (!webName) {
+                showResult('cwebResult', 'Nama web tidak boleh kosong!', true);
+                return;
+            }
+
+            if (!fileInput.files[0]) {
+                showResult('cwebResult', 'Reply file .zip atau .html!', true);
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const mime = file.type;
+
+            if (!mime.includes('zip') && !mime.includes('html')) {
+                showResult('cwebResult', 'File tidak dikenali. Kirim file .zip atau .html!', true);
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Deploying...';
+            showResult('cwebResult', 'Memproses... Mohon tunggu.', false, 'loading');
+
+            try {
+                await deployDirect(webName, file);
+                showResult('cwebResult', `[ ✓ ] Website berhasil dibuat!\n\n🌐 URL: https://${webName}.vercel.app`, false);
+            } catch (error) {
+                showResult('cwebResult', `Error: ${error.message}`, true);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Buat Website';
+            }
+        });
+
+        document.getElementById('cweb3Form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const webName = document.getElementById('cweb3Name').value.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '');
+            const fileInput = document.getElementById('cweb3FileInput');
+            const resultDiv = document.getElementById('cweb3Result');
+            const submitBtn = document.getElementById('cweb3SubmitBtn');
+
+            if (!webName) {
+                showResult('cweb3Result', 'Nama web tidak boleh kosong!', true);
+                return;
+            }
+
+            if (!fileInput.files[0]) {
+                showResult('cweb3Result', 'Reply file .zip atau .html!', true);
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const mime = file.type;
+
+            if (!mime.includes('zip') && !mime.includes('html')) {
+                showResult('cweb3Result', 'File harus berupa .zip atau .html!', true);
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Membuat Repository...';
+            showResult('cweb3Result', 'Membuat repository dan meng-upload file...', false, 'loading');
+
+            try {
+                const buffer = await file.arrayBuffer();
+                let filesToUpload = [];
+
+                if (mime.includes('zip')) {
+                    const JSZip = await import('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+                    const zip = await JSZip.loadAsync(buffer);
+                    for (const [path, zipEntry] of Object.entries(zip.files)) {
+                        if (!zipEntry.dir) {
+                            const content = await zipEntry.async('uint8array');
+                            filesToUpload.push({
+                                file: path.replace(/^\/+/, '').replace(/\\/g, '/'),
+                                data: btoa(String.fromCharCode(...content)),
+                                encoding: 'base64'
+                            });
+                        }
+                    }
+                    if (!filesToUpload.some(x => x.file.toLowerCase().endsWith('index.html'))) {
+                        throw new Error('File index.html tidak ditemukan dalam struktur ZIP.');
+                    }
+                } else {
+                    const fileContent = new TextDecoder().decode(buffer);
+                    filesToUpload.push({
+                        file: 'index.html',
+                        data: btoa(fileContent),
+                        encoding: 'base64'
+                    });
+                }
+
+                // Buat repo GitHub
+                const createRepoRes = await fetch(`https://api.github.com/user/repos`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `token ${githubToken}`,
+                        'Content-Type': 'application/json',
+                        'User-Agent': 'Bot'
+                    },
+                    body: JSON.stringify({
+                        name: webName,
+                        auto_init: true,
+                        private: false
+                    })
+                });
+
+                const repoResult = await createRepoRes.json();
+                if (!repoResult?.name) {
+                    throw new Error(`Gagal membuat repo: ${JSON.stringify(repoResult)}`);
+                }
+
+                // Upload semua file ke GitHub
+                for (const fileData of filesToUpload) {
+                    const uploadRes = await fetch(`https://api.github.com/repos/${githubUsername}/${webName}/contents/${fileData.file}`, {
+                        method: 'PUT',
+                        headers: {
+                            Authorization: `token ${githubToken}`,
+                            'Content-Type': 'application/json',
+                            'User-Agent': 'Bot'
+                        },
+                        body: JSON.stringify({
+                            message: `add ${fileData.file}`,
+                            content: fileData.data
+                        })
+                    });
+
+                    const uploadResult = await uploadRes.json();
+                    if (!uploadResult?.content?.name) {
+                        throw new Error(`Gagal upload ${fileData.file}: ${JSON.stringify(uploadResult)}`);
+                    }
+                }
+
+                // Deploy ke Vercel
+                const vercelRes = await fetch('https://api.vercel.com/v13/deployments', {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${vercelToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: webName,
+                        files: filesToUpload,
+                        projectSettings: { framework: null }
+                    })
+                });
+
+                const vercelResult = await vercelRes.json();
+                if (!vercelResult?.url) {
+                    throw new Error(`Gagal deploy ke Vercel: ${JSON.stringify(vercelResult)}`);
+                }
+
+                showResult('cweb3Result', `Sukses! Website kamu telah dibuat dan bisa diakses di:\n\nhttps://${vercelResult.url}`, false);
+            } catch (error) {
+                showResult('cweb3Result', `Error: ${error.message}`, true);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Buat Website';
+            }
+        });
+
+        async function deployDirect(webName, file) {
+            const domainCheckUrl = `https://${webName}.vercel.app`;
+            try {
+                const check = await fetch(domainCheckUrl);
+                if (check.status === 200) {
+                    throw new Error(`[ x ] Nama web *${webName}* sudah digunakan. Silakan gunakan nama lain.`);
+                }
+            } catch (e) {
+                if (e.message) throw e;
+            }
+
+            const filesToUpload = [];
+            const buffer = await file.arrayBuffer();
+
+            if (file.type.includes('zip')) {
+                const JSZip = await import('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+                const zip = await JSZip.loadAsync(buffer);
+                for (const [path, zipEntry] of Object.entries(zip.files)) {
+                    if (!zipEntry.dir) {
+                        const content = await zipEntry.async('uint8array');
+                        filesToUpload.push({
+                            file: path.replace(/^\/+/, '').replace(/\\/g, '/'),
+                            data: btoa(String.fromCharCode(...content)),
+                            encoding: 'base64'
+                        });
+                    }
+                }
+                if (!filesToUpload.some(x => x.file.toLowerCase().endsWith('index.html'))) {
+                    throw new Error('File index.html tidak ditemukan dalam struktur ZIP.');
+                }
+            } else {
+                filesToUpload.push({
+                    file: 'index.html',
+                    data: btoa(String.fromCharCode(...new Uint8Array(buffer))),
+                    encoding: 'base64'
+                });
+            }
+
+            const headers = {
+                Authorization: `Bearer ${vercelToken}`,
+                'Content-Type': 'application/json'
+            };
+
+            await fetch('https://api.vercel.com/v9/projects', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ name: webName })
+            });
+
+            const deployRes = await fetch('https://api.vercel.com/v13/deployments', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({
+                    name: webName,
+                    project: webName,
+                    files: filesToUpload,
+                    projectSettings: { framework: null }
+                })
+            });
+
+            const deployData = await deployRes.json();
+            if (!deployData || !deployData.url) {
+                throw new Error(`Gagal deploy ke Vercel:\n${JSON.stringify(deployData)}`);
+            }
+        }
+
+        function showResult(divId, message, isError, className = '') {
+            const resultDiv = document.getElementById(divId);
+            resultDiv.textContent = message;
+            resultDiv.className = `result ${isError ? 'error' : className}`;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
